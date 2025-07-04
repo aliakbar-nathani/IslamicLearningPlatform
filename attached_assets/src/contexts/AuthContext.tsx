@@ -1,21 +1,15 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  avatar?: string;
-  provider: 'email' | 'google';
-}
+import apiClient, { User } from '@/services/api';
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
-  signup: (email: string, password: string, name: string) => Promise<void>;
-  logout: () => void;
+  signup: (email: string, password: string, username: string) => Promise<void>;
+  logout: () => Promise<void>;
+  updateProfile: (updates: Partial<User>) => Promise<void>;
   isLoading: boolean;
+  isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,36 +32,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     // Check if user is logged in on app start
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      // Verify token and get user profile
+      apiClient.setToken(token);
+      apiClient.getProfile()
+        .then(({ user }) => {
+          setUser(user);
+        })
+        .catch(() => {
+          // Token is invalid, clear it
+          localStorage.removeItem('auth_token');
+          apiClient.clearToken();
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await apiClient.login({ email, password });
       
-      // Check if user exists in localStorage
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const existingUser = users.find((u: any) => u.email === email && u.password === password);
+      // Set token in API client
+      apiClient.setToken(response.token);
       
-      if (!existingUser) {
-        throw new Error('Invalid email or password');
-      }
+      // Set user in state
+      setUser(response.user);
       
-      const userData: User = {
-        id: existingUser.id,
-        email: existingUser.email,
-        name: existingUser.name,
-        provider: 'email'
-      };
-      
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+      // Token is already saved in localStorage by apiClient.setToken()
     } catch (error) {
       throw error;
     } finally {
@@ -75,22 +72,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const loginWithGoogle = async () => {
+  const signup = async (email: string, password: string, username: string) => {
     setIsLoading(true);
     try {
-      // Simulate Google OAuth flow
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await apiClient.register({ 
+        email, 
+        password, 
+        username,
+        role: 'student' // Default role
+      });
       
-      const userData: User = {
-        id: 'google_' + Date.now(),
-        email: 'user@gmail.com',
-        name: 'Google User',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-        provider: 'google'
-      };
+      // Set token in API client
+      apiClient.setToken(response.token);
       
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+      // Set user in state
+      setUser(response.user);
+      
+      // Token is already saved in localStorage by apiClient.setToken()
     } catch (error) {
       throw error;
     } finally {
@@ -98,39 +96,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const signup = async (email: string, password: string, name: string) => {
+  const logout = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Check if user already exists
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const existingUser = users.find((u: any) => u.email === email);
-      
-      if (existingUser) {
-        throw new Error('User already exists with this email');
-      }
-      
-      const newUser = {
-        id: 'user_' + Date.now(),
-        email,
-        password,
-        name
-      };
-      
-      users.push(newUser);
-      localStorage.setItem('users', JSON.stringify(users));
-      
-      const userData: User = {
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name,
-        provider: 'email'
-      };
-      
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+      await apiClient.logout();
+    } catch (error) {
+      // Even if logout fails on server, clear local state
+      console.error('Logout error:', error);
+    } finally {
+      // Clear user and token
+      setUser(null);
+      apiClient.clearToken();
+      setIsLoading(false);
+    }
+  };
+
+  const updateProfile = async (updates: Partial<User>) => {
+    if (!user) throw new Error('No user logged in');
+    
+    setIsLoading(true);
+    try {
+      const response = await apiClient.updateProfile(updates);
+      setUser(response.user);
     } catch (error) {
       throw error;
     } finally {
@@ -138,19 +125,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-  };
+  const isAuthenticated = !!user;
 
   return (
     <AuthContext.Provider value={{
       user,
       login,
-      loginWithGoogle,
       signup,
       logout,
-      isLoading
+      updateProfile,
+      isLoading,
+      isAuthenticated
     }}>
       {children}
     </AuthContext.Provider>
