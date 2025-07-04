@@ -24,12 +24,14 @@ from routes.auth import register_auth_routes
 from routes.courses import register_course_routes
 from routes.users import register_user_routes
 from routes.progress import register_progress_routes
+from routes.access import register_access_routes
 
 # Register all routes
 register_auth_routes(api)
 register_course_routes(api)
 register_user_routes(api)
 register_progress_routes(api)
+register_access_routes(api)
 
 # Health check endpoint
 @app.route('/health')

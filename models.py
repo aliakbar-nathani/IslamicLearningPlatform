@@ -54,6 +54,14 @@ class Course:
         self.total_duration = 0  # in minutes
         self.language = 'English'
         self.prerequisites = []
+        # Access control for free/paid content
+        self.is_free = False
+        self.access_type = 'paid'  # 'free', 'paid', 'subscription'
+        self.preview_config = {
+            'free_sections': [],  # List of section IDs that are free
+            'free_subsections': [],  # List of subsection IDs that are free
+            'preview_duration': 300  # Default preview duration in seconds
+        }
 
     def to_dict(self):
         return {
@@ -76,7 +84,10 @@ class Course:
             'reviews': self.reviews,
             'total_duration': self.total_duration,
             'language': self.language,
-            'prerequisites': self.prerequisites
+            'prerequisites': self.prerequisites,
+            'is_free': self.is_free,
+            'access_type': self.access_type,
+            'preview_config': self.preview_config
         }
 
 class Section:
@@ -90,6 +101,10 @@ class Section:
         self.materials = []
         self.quiz_id = None
         self.created_at = datetime.utcnow()
+        # Access control
+        self.access_level = 'paid'  # 'free', 'paid', 'preview'
+        self.is_preview = False
+        self.preview_duration = None  # None means full section access
 
     def to_dict(self):
         return {
@@ -101,7 +116,10 @@ class Section:
             'subsections': [subsection.to_dict() for subsection in self.subsections],
             'materials': self.materials,
             'quiz_id': self.quiz_id,
-            'created_at': self.created_at.isoformat()
+            'created_at': self.created_at.isoformat(),
+            'access_level': self.access_level,
+            'is_preview': self.is_preview,
+            'preview_duration': self.preview_duration
         }
 
 class Subsection:
@@ -114,6 +132,12 @@ class Subsection:
         self.content = {}  # Flexible content structure
         self.duration = 0  # in minutes
         self.created_at = datetime.utcnow()
+        # Access control
+        self.access_level = 'paid'  # 'free', 'paid', 'preview'
+        self.is_preview = False
+        self.preview_duration = None  # Seconds of free preview (None = full access)
+        self.video_url = ''
+        self.preview_video_url = ''  # Optional separate preview video
 
     def to_dict(self):
         return {
@@ -124,7 +148,12 @@ class Subsection:
             'order': self.order,
             'content': self.content,
             'duration': self.duration,
-            'created_at': self.created_at.isoformat()
+            'created_at': self.created_at.isoformat(),
+            'access_level': self.access_level,
+            'is_preview': self.is_preview,
+            'preview_duration': self.preview_duration,
+            'video_url': self.video_url,
+            'preview_video_url': self.preview_video_url
         }
 
 class Quiz:

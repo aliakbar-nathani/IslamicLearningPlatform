@@ -82,7 +82,45 @@ This is a Flask-based RESTful API for an Islamic course platform that allows stu
 
 Preferred communication style: Simple, everyday language.
 
+## Access Control System
+
+### Content Access Features
+- **Free vs Paid Content**: Courses can be marked as free, paid, or subscription-based
+- **Preview System**: First videos or specific sections can be made available as previews
+- **Time-limited Previews**: Videos can have preview duration limits (e.g., first 5 minutes free)
+- **Granular Control**: Access control at course, section, and subsection levels
+- **Role-based Access**: Different permissions for students, instructors, and admins
+
+### Access Control Endpoints
+- **Access Check**: `/api/courses/{course_id}/access` - Check user's access level for a course
+- **Subsection Access**: `/api/courses/{course_id}/subsections/{subsection_id}/access` - Get content with access control
+- **Video Streaming**: `/api/videos/{subsection_id}/stream` - Get video stream with access control
+
+## Recent Implementation (July 04, 2025)
+
+### Completed Features
+- ✅ Full Flask API backend with RESTful endpoints
+- ✅ User authentication and authorization system
+- ✅ Course management with CRUD operations
+- ✅ Progress tracking for enrolled students
+- ✅ Access control system for free/paid content
+- ✅ In-memory data storage with thread-safe operations
+- ✅ Islamic course categories and content structure
+- ✅ Review and rating system
+
+### API Testing Results
+- All authentication endpoints working (register, login, logout)
+- Course creation and management functional
+- User enrollment and progress tracking operational
+- Access control system implemented
+- Categories and course filtering working
+
+### Data Models Enhanced
+- Course model includes access control fields (is_free, access_type, preview_config)
+- Section model includes access levels and preview settings
+- Subsection model includes video URLs and preview controls
+- Progress tracking with granular subsection completion
+
 ## Changelog
 
-Changelog:
-- July 04, 2025. Initial setup
+- July 04, 2025: Complete Flask API backend implementation with access control system
