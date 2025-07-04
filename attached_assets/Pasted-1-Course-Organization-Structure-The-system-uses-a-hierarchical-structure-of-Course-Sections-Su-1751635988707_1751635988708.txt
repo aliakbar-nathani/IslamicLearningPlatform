@@ -1,0 +1,91 @@
+1. Course Organization
+Structure: The system uses a hierarchical structure of Course → Sections → Subsections
+Evidence:
+CourseSection
+ interface shows sections contain materials and quizzes
+CourseDetail
+ component manages sections and subsections with state variables
+Each section can have multiple subsections with their own content
+2. Course Categories/Tags
+Categories: Yes, courses are organized into categories
+Examples: "Quran Studies", "Fiqh & Jurisprudence", "Islamic History", "Hadith & Sunnah", "Arabic Language", "Theology & Philosophy"
+Categories are used for filtering and organization in the UI
+Tags:
+Courses can have multiple tags
+Tags are stored as an array in the course data
+Users can add/remove tags when creating/editing courses
+3. Content Types
+The platform supports various content types:
+
+Videos: Each section can have video content
+Stored as video URLs or files
+Supports preview videos for course overview
+Text Content:
+Section descriptions
+Instructor notes
+Course materials
+Quizzes:
+Multiple-choice questions
+Passing scores can be set
+Integrated within sections
+PDFs/Documents:
+Referenced as course materials
+Can be attached to sections
+Assignments:
+Not explicitly shown in the current codebase
+Would likely be implemented similarly to quizzes
+4. Prerequisites
+Not explicitly implemented in the current codebase
+Would need to be added as a feature if required
+5. User Management
+Roles:
+
+Students:
+Can enroll in courses
+Track progress
+Complete quizzes
+View course materials
+Instructors:
+Create and manage courses
+Upload content
+Create quizzes
+View student progress
+Admins:
+Full system access
+Can manage all courses and users
+Access to analytics
+6. User Progress Tracking
+Progress Tracking:
+Tracks completion of sections/subsections
+Quiz scores are recorded
+Progress is saved (likely in localStorage or backend)
+Completion Metrics:
+Tracks which sections are completed
+Overall course progress percentage
+Quiz attempts and scores
+7. Course Metadata
+Courses store the following information:
+
+Basic Info:
+Title
+Description
+Instructor
+Category
+Level (Beginner/Intermediate/Advanced)
+Price
+Thumbnail image
+Preview video
+Content:
+Sections and subsections
+Video content
+Quizzes
+Supplementary materials
+Ratings/Reviews:
+Course ratings (e.g., 4.6/5)
+Number of students enrolled
+Student reviews (implied by rating system)
+8. Additional Features
+Certificates: Awarded upon course completion
+Wishlist: Users can save courses for later
+Search & Filter: By category, level, etc.
+Responsive Design: Works on different screen sizes
